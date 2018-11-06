@@ -27,7 +27,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   Color pickerColor = Color(0xff443a49);
-  String log = '';
 
   RawDatagramSocket socket;
 
@@ -35,61 +34,25 @@ class _MyHomePageState extends State<MyHomePage> {
   initState() {
     super.initState();
     RawDatagramSocket.bind(InternetAddress.anyIPv4, 4200).then((_socket) {
-      setState(() {
-        socket = _socket;
-      });
-      _socket.listen((e) {
-        Datagram dg = _socket.receive();
-        if(dg == null) return;
-        appendLog(dg.data.map((element) => String.fromCharCode(element)).join());
-      });
+      setState(() => socket = _socket);
     });
   }
 
   changeColor(Color color) {
     var buffer = [color.red, color.green, color.blue, color.alpha];
-    socket.send(
-        buffer,
-        InternetAddress('4.20.4.20'), 4200);
+    socket?.send(buffer, InternetAddress('4.20.4.20'), 4200);
     setState(() => pickerColor = color);
-  }
-
-  appendLog(String logLine) {
-    setState(() => log += logLine);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (socket == null) {
-      return Center(
-        child: CircularProgressIndicator(),
-      );
-    }
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-            flexibleSpace: SafeArea(
-                child: TabBar(tabs: [
-          Tab(text: 'picker', icon: Icon(Icons.palette)),
-          Tab(text: 'log', icon: Icon(Icons.message)),
-        ]))),
-        body: TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-          Padding(
-            padding: EdgeInsets.all(10.0),
-            child: ColorPicker(
-              pickerColor: pickerColor,
-              onColorChanged: changeColor,
-              enableLabel: true,
-              pickerAreaHeightPercent: 0.8,
-            ),
-          ),
-          Text(
-            log,
-            softWrap: true,
-          )
-        ]),
-      ),
+    return Scaffold(
+        body: ColorPicker(
+          pickerColor: pickerColor,
+          onColorChanged: changeColor,
+          enableLabel: true,
+          pickerAreaHeightPercent: 1.0,
+        ),
     );
   }
 }
