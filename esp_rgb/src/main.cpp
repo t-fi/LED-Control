@@ -11,12 +11,11 @@ IPAddress subnet(255,255,255,0);
 // udp messaging
 WiFiUDP Udp;
 unsigned int localUdpPort = 4200;
-char incomingPacket[255];
+char incomingPacket[4];
 char replyPacket[] = "Hi there! Got the message :-)";
 
 void setup() {
   Serial.begin(9600);
-  Serial.print("HI!");
 
   WiFi.softAPConfig(local_IP, gateway, subnet);
   WiFi.softAP("espenis");
@@ -31,7 +30,8 @@ void loop() {
   int packetSize = Udp.parsePacket();
   if (packetSize)
   {
-    Serial.print(Udp.read(incomingPacket, 255));
+    Udp.read(incomingPacket, 4);
+    Serial.printf("%02X:%02X:%02X:%02X\n", incomingPacket[0], incomingPacket[1], incomingPacket[2], incomingPacket[3]);
 
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write(replyPacket);

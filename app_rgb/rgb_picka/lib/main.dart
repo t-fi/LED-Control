@@ -40,16 +40,16 @@ class _MyHomePageState extends State<MyHomePage> {
       });
       _socket.listen((e) {
         Datagram dg = _socket.receive();
-        setState(() {
-          log += dg.toString();
-        });
+        if(dg == null) return;
+        appendLog(dg.data.map((element) => String.fromCharCode(element)).join());
       });
     });
   }
 
   changeColor(Color color) {
+    var buffer = [color.red, color.green, color.blue, color.alpha];
     socket.send(
-        [color.red, color.green, color.blue, color.alpha],
+        buffer,
         InternetAddress('4.20.4.20'), 4200);
     setState(() => pickerColor = color);
   }
@@ -75,11 +75,14 @@ class _MyHomePageState extends State<MyHomePage> {
           Tab(text: 'log', icon: Icon(Icons.message)),
         ]))),
         body: TabBarView(physics: NeverScrollableScrollPhysics(), children: [
-          ColorPicker(
-            pickerColor: pickerColor,
-            onColorChanged: changeColor,
-            enableLabel: true,
-            pickerAreaHeightPercent: 0.8,
+          Padding(
+            padding: EdgeInsets.all(10.0),
+            child: ColorPicker(
+              pickerColor: pickerColor,
+              onColorChanged: changeColor,
+              enableLabel: true,
+              pickerAreaHeightPercent: 0.8,
+            ),
           ),
           Text(
             log,
