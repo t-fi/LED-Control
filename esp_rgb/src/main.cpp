@@ -31,21 +31,14 @@ void setup() {
   pwmController = PCA9685();      // Software resets all PCA9685 devices on Wire line
 }
 
-void loop(){
-  for(uint8_t ledIndex = 0; ledIndex < 16; ledIndex++){
-    pwmController.setLedValue(ledIndex, 4095);
-  }
-  delay(500);
-  for(uint8_t ledIndex = 0; ledIndex < 16; ledIndex++){
-    pwmController.setLedValue(ledIndex, 1023);
-  }
-  delay(500);
+void parseColors(){
+  for(uint8_t ledIndex = 0; ledIndex < 4; ledIndex++)
+    pwmController.setLedValue(ledIndex, incomingPacket[ledIndex] << 4);
 }
 
-void boop() {
-  int packetSize = Udp.parsePacket();
-  if (packetSize)
-  {
+void loop() {
+  if (Udp.parsePacket()) {
     Udp.read(incomingPacket, 4);
+    parseColors();
   }
 }
